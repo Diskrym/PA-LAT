@@ -20,8 +20,8 @@ y = 0
 for i in range(0,5):
     time.sleep(1.0)
     IvySendMsg('StateVector x={} y={}'.format(x,y))
-    x = x+1
-    y = y - 1
+    x += 1
+    y -= 1
     if i == 3:
         IvySendMsg('FGS_Msg xWpt=8 yWpt=10')
 IvyStop()
