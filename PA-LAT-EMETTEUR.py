@@ -1,4 +1,4 @@
-from ivy.std_api import *
+from ivy.std_api import * #type: ignore
 
 import time
 

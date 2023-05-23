@@ -1,6 +1,8 @@
-from ivy.std_api import *
+#C:/msys64/mingw64/bin/python.exe c:/Users/louis/OneDrive/Bureau/PA-LAT/PA-LAT-RECEPTEUR.py
 
-xGlobal = None
+from ivy.std_api import * #type: ignore
+
+xGlobal = 0
 
 def on_cx_proc(agent, connected) :
     pass
@@ -23,6 +25,6 @@ app_name = "PA_LAT"
 ivy_bus = "127.255.255.255:2010"
 IvyInit(app_name,"[%s ready]", 0, on_cx_proc, on_die_proc)
 IvyStart(ivy_bus)
-IvyBindMsg(on_StateVector, '^StateVector x=(\S+) y=(\S+)')
-IvyBindMsg(on_FGS_Msg, '^FGS_Msg xWpt=(\S+) yWpt=(\S+)')
+IvyBindMsg(on_StateVector, r'^StateVector x=(\S+) y=(\S+)')
+IvyBindMsg(on_FGS_Msg, r'^FGS_Msg xWpt=(\S+) yWpt=(\S+)')
 IvyMainLoop()
