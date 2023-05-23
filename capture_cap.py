@@ -1,8 +1,9 @@
 import math
 
 def selected_mode(): #cap magnetique en entree
-    cap_actuel_vrai=input('') #cap actuel de l'avion (vrai)
-    cap_a=float(cap_actuel_vrai)
+    cap_actuel_vrai=input('Cap actuel :') #cap actuel de l'avion (vrai)
+    cap_adeg=float(cap_actuel_vrai)
+    cap_a=cap_adeg*(math.pi/180)
 
     deviation= -13.69
     cap_actuel_magnetique= cap_a + deviation #calcul cap magnetique fct(cap actuel)
@@ -12,11 +13,12 @@ def selected_mode(): #cap magnetique en entree
     cap_fcu_sm=input('Cap FCU :')  #objectif de cap a capturer (magnetique)
     cfcusm=float(cap_fcu_sm)
 
-    cap_o=cfcusm-deviation #calcul cap vrai objectif fct(entree fcu)
-    if cap_o<0: #evite d'avoir des cap negatifs
-        cap_o+=360
+    cap_odeg=cfcusm-deviation #calcul cap vrai objectif fct(entree fcu)
+    if cap_odeg<0: #evite d'avoir des cap negatifs
+        cap_odeg+=360
+    cap_o=cap_odeg*(math.pi/180)
 
-    if cap_a<=cap_o and cap_o<=cap_a+180: #calcul sens virage
+    if cap_a<=cap_o and cap_o<=cap_a+(180*(math.pi/180)): #calcul sens virage
         print("vd")
     else:
         print("vg")
@@ -46,12 +48,14 @@ def selected_mode(): #cap magnetique en entree
     """
     
 
-    """ #test de cap
-    print(cav)
+     #test de cap
+    print(cap_adeg)
+    print(cap_a)
     print(cap_actuel_magnetique)
     print(cfcusm)
-    print(cap_vrai)
-    """
+    print(cap_odeg)
+    print(cap_o)
+    
 
 def managed_mode(): #cap vrai en entree
     return 1
