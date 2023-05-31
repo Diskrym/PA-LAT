@@ -1,29 +1,37 @@
 import math
 from ivy.std_api import * #type: ignore
 
-Vector_X=None
-Vector_Y=None
-Wind_Comp=None
-V_Wind=None
-Fcu_Mode=None
-Fcu_Value=None
-Heading=0.00
-Dec_Magnetique=0.00
+Vector_X=0
+Vector_Y=0
+Wind_Comp=0
+V_Wind=0
+Fcu_Mode=0
+Fcu_Value=0
+Heading=0
+Dec_Magnetique=0
 
 def on_cx_proc(agent, connected) :
     pass
 def on_die_proc(agent, _id) :
     pass
 
-def get_AircraftSetPosition(agent, *larg):
+def on_AircraftSetPosition(agent, *larg):
     Heading=float(larg[0])
     print("Heading={}".format(larg[0]))
     return Heading
 
-def get_MagneticDeclination(agent, *larg) :
+def on_MagneticDeclination(agent, *larg) :
     Dec_Magnetique = float(larg[0])
     print("DEC={}".format(larg[0]))
     return Dec_Magnetique
+
+def on_FCU_Mod(agent, *larg) :
+    global Fcu_Mode
+    global Fcu_Value
+    Fcu_Mode = larg[0]
+    Fcu_Value = larg[1]
+    print("Mode={}, Value={}".format(larg[0],larg[1]))
+
 
 def selected_mode(): #cap magnetique en entree
     global Heading
@@ -41,17 +49,18 @@ def selected_mode(): #cap magnetique en entree
     cap_o=cap_odeg*(math.pi/180)
 
     if cap_a<=cap_o and cap_o<=cap_a+(180*(math.pi/180)): #calcul sens virage
-        print("vd")
+        print("vd") #établir les taux de roulis
     else:
         print("vg")
 
 def managed_mode(): #cap vrai en entree
-    return 1
+    pass
 
 def main():
-    get_MagneticDeclination()
-    get_AircraftSetPosition()
-    selected_mode()
+    """if selected_mod
+        selected_mode()
+    else 
+        managed_mode()"""
 
 main()
 
@@ -60,5 +69,5 @@ app_name = "PA_LAT"
 ivy_bus = "127.255.255.255:2010"
 IvyInit(app_name,"[%s ready]", 0, on_cx_proc, on_die_proc)
 IvyStart(ivy_bus)
-IvyBindMsg(get_AircraftSetPosition, r'^AircraftSetPosition Heading=(\S+)')
-IvyBindMsg(get_MagneticDeclination, r'^MagneticDeclination=(\S+)')
+IvyBindMsg(on_AircraftSetPosition, r'^AircraftSetPosition Heading=(\S+)')
+IvyBindMsg(on_MagneticDeclination, r'^MagneticDeclination=(\S+)')
