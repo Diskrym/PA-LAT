@@ -63,15 +63,18 @@ def calcul_route_sélecté():
 #calcul de la dérive magnétique
 
     d = asin((V_Wind*sin(Fcu_Value - direction_vent_magnetique))/Vp*cos(fpa))
-
-#calcul du cap magnétique
-    cap_magnetique = Fcu_Value - d #cap en rad 
-    
-    
-    if cap_magnetique.real < 0:
-        cap_magnetique = 360 + cap_magnetique.real
-
-    print(cap_magnetique)
+    d=d.real
+    cap_magnetique = 0
+    if d > 0 :
+        cap_magnetique = Fcu_Value - d
+        if cap_magnetique < 0 :
+            cap_magnetique +=360
+    elif d < 0 :
+        cap_magnetique = Fcu_Value + d #cap en rad
+        if cap_magnetique > 360 :
+            cap_magnetique-=360 
+    elif d == 0 :
+        cap_magnetique=Fcu_Value 
     return cap_magnetique
 
 def calcul_route_managé(): 

@@ -48,12 +48,12 @@ def selected_mode(): #cap magnetique en entree
 def managed_mode(): #cap vrai en entree
     return 1
 
-def main():
-    get_MagneticDeclination()
-    get_AircraftSetPosition()
-    selected_mode()
+# def main():
+#     get_MagneticDeclination()
+#     get_AircraftSetPosition()
+#     selected_mode()
 
-main()
+# main()
 
 
 app_name = "PA_LAT"
