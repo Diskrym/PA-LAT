@@ -58,11 +58,11 @@ def calcul_route_sélecté():
     global Fcu_Value
 
 # conversion de la diretion du vent vrai en magnétique
-    direction_vent_magnetique = 100 + 180 - Dec_Magnetique*(math.pi/180)
+    direction_vent_magnetique = Wind_Comp + 180 - Dec_Magnetique * (math.pi/180)
 
 #calcul de la dérive magnétique
 
-    d = asin((30*sin(Fcu_Value - direction_vent_magnetique))/Vp*cos(fpa))
+    d = asin((V_Wind*sin(Fcu_Value - direction_vent_magnetique))/Vp*cos(fpa))
 
 #calcul du cap magnétique
     cap_magnetique = Fcu_Value - d #cap en rad 
