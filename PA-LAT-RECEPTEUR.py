@@ -2,13 +2,13 @@
 
 from ivy.std_api import * #type: ignore
 
-#global Vector_X
-#global Vector_Y
-#global Wind_Comp
-#global V_Wind
-#global Dec_Magnetique
-#global Fcu_Mode
-#global Fcu_Value
+Vector_X=None
+Vector_Y=None
+Wind_Comp=None
+V_Wind=None
+Dec_Magnetique=None
+Fcu_Mode=None
+Fcu_Value=None
 
 
 
