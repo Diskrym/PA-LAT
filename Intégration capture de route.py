@@ -13,6 +13,7 @@ Fcu_Mode = 0
 Fcu_Value = 0
 Vp = 0
 fpa = 0
+psi=0
 
 
 #init
@@ -29,11 +30,13 @@ def on_StateVector(agent, *larg):
     global Vector_Y
     global Vp
     global fpa
+    global psi
     print("x={}, y={}".format(larg[0],larg[1]))
     Vector_X = float(larg[0])
     Vector_Y = float(larg[1])
     Vp = float(larg[3])
     fpa = float(larg[4])
+    psi = float(larg[5])
 
 def on_WindComponent (agent, *larg):
     global V_Wind
@@ -46,6 +49,31 @@ def on_MagnticDeclination(agent, *larg) :
     global Dec_Magnetique
     Dec_Magnetique = larg[0]
     print("DEC={}".format(larg[0]))
+
+def capture_daxe():
+
+    global Vp
+    global fpa
+    global psi
+    global V_Wind
+    global Wind_Comp
+
+    # calcul vecteur vitesse
+    T_ey = 1
+
+    xdot = Vp*cos(fpa) * cos(psi) + cos(V_Wind) * cos(Wind_Comp+math.pi)
+    ydot = Vp*cos(fpa) * sin(psi) + sin(V_Wind) * sin(Wind_Comp+math.pi) 
+
+    
+    Gs = math.sqrt((math.pow(ydot.real,2)) + (math.pow(xdot.real,2))) #ground speed
+
+    khi_a = math.atan2(ydot.real,xdot.real) #route avion
+
+    ey= -sin(khi_a)*(-Vector_X) + cos(khi_a) * (-Vector_Y) #cross_track
+
+    khi_c = khi_a - math.asin(ey.real/(Gs*T_ey))
+
+    return khi_c
 
 def calcul_route_sélecté(): 
     
@@ -116,7 +144,7 @@ app_name = "PA_LAT"
 ivy_bus = "127.255.255.255:2010"
 IvyInit(app_name,"[%s ready]", 0, on_cx_proc, on_die_proc)
 IvyStart(ivy_bus)
-IvyBindMsg(on_StateVector, r'^StateVector x=(\S+) y=(\S+) z=(\S+) Vp=(\S+) fpa=(\S+)')
+IvyBindMsg(on_StateVector, r'^StateVector x=(\S+) y=(\S+) z=(\S+) Vp=(\S+) fpa=(\S+) psi=(\S+)')
 IvyBindMsg(on_FGS_Msg, r'^FGS_Msg xWpt=(\S+) yWpt=(\S+)')
 IvyBindMsg(on_MagnticDeclination, r'^MagneticDeclination=(\S+)')
 IvyBindMsg(on_WindComponent, r'^WindComponent VWind=(\S+) dirWind=(\S+)')
