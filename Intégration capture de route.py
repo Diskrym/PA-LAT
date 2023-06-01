@@ -142,10 +142,6 @@ def on_FCU_Mod(agent, *larg) :
     global Fcu_Value
     Fcu_Mode = larg[0]
     Fcu_Value = float(larg[1])
-    if Fcu_Mode == "Managed" :
-        pass
-    elif  Fcu_Mode == "SelectedHeading" :
-        calcul_route_sélecté() 
     print("Mode={}, Value={}".format(larg[0],larg[1]))
 
 
@@ -157,6 +153,14 @@ def on_FGS_Msg(agent, *larg):
     x2 = float(larg[1])
     y1 = float(larg[2])
     y2 = float(larg[3])
+
+    #lancement du code au message du FM
+    if Fcu_Mode == "Managed" :
+        capture_daxe()
+    elif  Fcu_Mode == "SelectedHeading" :
+        calcul_route_sélecté()
+     
+
 
 
 app_name = "PA_LAT"
