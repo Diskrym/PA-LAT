@@ -16,6 +16,10 @@ Vp = 0
 fpa = 0
 psi=0
 route=0
+x1=0
+x2=0
+y1=0
+y2=0
 
 #init
 def on_cx_proc(agent, connected) :
@@ -58,6 +62,8 @@ def capture_daxe():
     global psi
     global V_Wind
     global Wind_Comp
+    global x1
+    global y1
 
     # calcul vecteur vitesse
     T_ey = 1
@@ -70,7 +76,7 @@ def capture_daxe():
 
     khi_a = math.atan2(ydot.real,xdot.real) #route avion
 
-    ey= -sin(khi_a)*(Vector_X-xa) + cos(khi_a) * (Vector_Y-xb) #cross_track
+    ey= -sin(khi_a)*(Vector_X- x1) + cos(khi_a) * (Vector_Y- y1) #cross_track
 
     khi_c = khi_a - math.asin(ey.real/(Gs*T_ey))
 
@@ -144,7 +150,13 @@ def on_FCU_Mod(agent, *larg) :
 
 
 def on_FGS_Msg(agent, *larg):
-    global xGlobal
+    global x1,x2
+    global y1,y2
+
+    x1 = float(larg[0])
+    x2 = float(larg[1])
+    y1 = float(larg[2])
+    y2 = float(larg[3])
 
 
 app_name = "PA_LAT"
@@ -152,7 +164,7 @@ ivy_bus = "127.255.255.255:2010"
 IvyInit(app_name,"[%s ready]", 0, on_cx_proc, on_die_proc)
 IvyStart(ivy_bus)
 IvyBindMsg(on_StateVector, r'^StateVector x=(\S+) y=(\S+) z=(\S+) Vp=(\S+) fpa=(\S+) psi=(\S+)')
-IvyBindMsg(on_FGS_Msg, r'^FGS_Msg xWpt=(\S+) yWpt=(\S+)')
+IvyBindMsg(on_FGS_Msg, r'^FM_Active_leg x1=(\S+), x2=(\S+), y1=(\S+), y2=(\S+)')
 IvyBindMsg(on_MagnticDeclination, r'^MagneticDeclination=(\S+)')
 IvyBindMsg(on_WindComponent, r'^WindComponent VWind=(\S+) dirWind=(\S+)')
 IvyBindMsg(on_FCU_Mod, r'^FCULateral Mode=(\S+) Val=(\S+)')
