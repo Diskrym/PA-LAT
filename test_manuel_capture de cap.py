@@ -2,7 +2,8 @@ import math
 
 Heading=0*(math.pi/180) #Cap_magnetique actuel de l'avion [rad]
 Dec_Magnetique=0 #declinaison magentique [rad]
-Fcu_Value=175 #Cap_magnetique objectif [deg]
+Fcu_Value=90 #Cap_magnetique objectif [deg]
+phi=0 #gite en [rad]
 
 def selected_mode(): #mode selecte, on entre un cap au fcu
     global Heading
@@ -22,9 +23,9 @@ def selected_mode(): #mode selecte, on entre un cap au fcu
     
     """CALCUL DU SENS DU VIRAGE"""
 
-    #d_objectif_v=Fcu_Value_v-Heading_v #Valeur de l'angle à parcourir
+    """d_objectif_v=Fcu_Value_v-Heading_v #Valeur de l'angle à parcourir
 
-    """if d_objectif_v>180*(math.pi/180):
+    if d_objectif_v>180*(math.pi/180):
         d_objectif_v=360*(math.pi/180)-d_objectif_v"""
     
     if Heading_v<Fcu_Value_v<Heading_v+180*(math.pi/180):
@@ -38,9 +39,16 @@ def selected_mode(): #mode selecte, on entre un cap au fcu
     
     print("delta objectif:{}".format(d_objectif_v*(180/math.pi)))
 
+    tphi=1.7
+    tpsi=3*tphi
+    p=(((1/tpsi)-phi)*(1/tphi))*d_objectif_v #roll rate [rad.s-1]
+
+    #while d_objectif_v!=0:
     if Heading_v<=Fcu_Value_v and Fcu_Value_v<=Heading_v+180*(math.pi/180):
-        print("vd")
+        p=1*p
+        print("vd p:{}".format(p*(180/math.pi))) #p>0
     else:
-        print("vg")
+        p=(-1)*p
+        print("vg p:{}".format(p*(180/math.pi))) #p<0
 
 selected_mode()

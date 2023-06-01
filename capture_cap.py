@@ -9,6 +9,7 @@ Fcu_Mode=0
 Fcu_Value=0  #Cap_magnetique objectif [deg]
 Heading=0   #Cap_magnetique actuel de l'avion [rad]
 Dec_Magnetique=0 #declinaison magentique [rad]
+phi=0
 
 def on_cx_proc(agent, connected) :
     pass
@@ -34,11 +35,14 @@ def on_FCU_Mod(agent, *larg) :
 
 
 def selected_mode(): #mode selecte, on entre un cap au fcu
+    """VARIABLE D'IVY"""
     global Heading
     global Dec_Magnetique
     global Fcu_Value
+    global phi
 
     Fcu_Value*=(math.pi/180) #conversion en [rad] du cap objectif
+
     """PASSAGE DE CAP MAGNETIQUE A CAP VRAI"""
 
     Heading_v=Heading+Dec_Magnetique #Cap_vrai actuel [rad]
@@ -48,29 +52,31 @@ def selected_mode(): #mode selecte, on entre un cap au fcu
         Heading_v+=360*(math.pi/180)
     if Fcu_Value_v<0: #evite cap negatifs
         Fcu_Value_v+=360*(math.pi/180)
-    
-    """CALCUL DU SENS DU VIRAGE"""
 
-    if Heading_v<=Fcu_Value_v and Fcu_Value_v<=Heading_v+180*(math.pi/180):
-        print("vd")
-    else:
-        print("vg")
+    """CALCUL ANGLE A PARCOURIR"""
 
-    """BOUCLE INSTRUCTION MISE EN VIRAGE"""
-
-    if Heading_v<Fcu_Value_v<Heading_v+180*(math.pi/180):
+    if Heading_v<Fcu_Value_v<Heading_v+180*(math.pi/180): #calcul de l'angle a parcourir
         d_objectif_v=Fcu_Value_v-Heading_v
     else:
         if 0<=Heading_v<Fcu_Value_v:
             d_objectif_v=Heading_v+(360*(math.pi/180))-Fcu_Value_v
         else:
             d_objectif_v=Heading_v-Fcu_Value_v
-    print("delta objectif:{}".format(d_objectif_v*(180/math.pi))) #print test de controle angle a parcourir
+    print("delta objectif:{}".format(d_objectif_v*(180/math.pi))) #print test de controle angle à parcourir
 
-    if Heading_v<=Fcu_Value_v and Fcu_Value_v<=Heading_v+180*(math.pi/180):
-        print("vd")
-    else:
-        print("vg")
+    """BOUCLE INSTRUCTION MISE EN VIRAGE"""
+
+    tphi=1.7
+    tpsi=3*tphi
+    p=(((1/tpsi)-phi)*(1/tphi))*d_objectif_v
+
+    while d_objectif_v!=0:
+        if Heading_v<=Fcu_Value_v and Fcu_Value_v<=Heading_v+180*(math.pi/180):
+            p=1*p
+            print("vd p:{}".format(p)) #p>0
+        else:
+            p=(-1)*p
+            print("vg p:{}".format(p)) #p<0
 
     pass
 
@@ -81,7 +87,7 @@ def main():
     selected_mode()
     pass
 
-# main()
+main()
 
 app_name = "PA_LAT"
 ivy_bus = "127.255.255.255:2010"
