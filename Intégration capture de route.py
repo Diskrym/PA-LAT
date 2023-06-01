@@ -27,9 +27,6 @@ def on_cx_proc(agent, connected) :
 def on_die_proc(agent, _id) :
     pass
 
-def on_msg(agent, *larg):
-    print("Msg with arg %s received" % larg[0])
-
 def on_StateVector(agent, *larg):
     global Vector_X
     global Vector_Y
@@ -64,6 +61,8 @@ def capture_daxe():
     global Wind_Comp
     global x1
     global y1
+    global x2
+    global y2
 
     # calcul vecteur vitesse
     T_ey = 1
@@ -74,13 +73,13 @@ def capture_daxe():
     
     Gs = math.sqrt((math.pow(ydot.real,2)) + (math.pow(xdot.real,2))) #ground speed
 
-    khi_a = math.atan2(ydot.real,xdot.real) #route avion
+    khi_a = math.atan((x2-x1)/(y2-y1)) #route avion
 
     ey= -sin(khi_a)*(Vector_X- x1) + cos(khi_a) * (Vector_Y- y1) #cross_track
 
     khi_c = khi_a - math.asin(ey.real/(Gs*T_ey))
 
-    return khi_c
+    return khi_c.real
 
 def calcul_route_sélecté(): 
     
@@ -134,6 +133,7 @@ def calcul_route_managé():
             cap_vrai-=360* (math.pi/180) 
     elif d == 0 :
         cap_vrai=capture_daxe()
+        print(cap_vrai)
     return cap_vrai
 
 
@@ -146,6 +146,7 @@ def on_FCU_Mod(agent, *larg) :
 
 
 def on_FGS_Msg(agent, *larg):
+    print('a')
     global x1,x2
     global y1,y2
 
