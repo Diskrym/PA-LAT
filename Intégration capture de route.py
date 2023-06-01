@@ -70,7 +70,7 @@ def capture_daxe():
 
     khi_a = math.atan2(ydot.real,xdot.real) #route avion
 
-    ey= -sin(khi_a)*(-Vector_X) + cos(khi_a) * (-Vector_Y) #cross_track
+    ey= -sin(khi_a)*(Vector_X-xa) + cos(khi_a) * (Vector_Y-xb) #cross_track
 
     khi_c = khi_a - math.asin(ey.real/(Gs*T_ey))
 
