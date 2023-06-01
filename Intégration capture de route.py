@@ -13,7 +13,7 @@ Fcu_Mode = 0
 Fcu_Value = 0
 Vp = 0
 fpa = 0
-
+route=0
 
 #init
 def on_cx_proc(agent, connected) :
@@ -52,29 +52,28 @@ def calcul_route_sélecté():
     global Dec_Magnetique
     global V_Wind
     global Vp
-    global route
     global fpa
     global Wind_Comp
     global Fcu_Value
 
 # conversion de la diretion du vent vrai en magnétique
-    direction_vent_magnetique = Wind_Comp + 180 - Dec_Magnetique * (math.pi/180)
+    direction_vent_magnetique = Wind_Comp + 180* (math.pi/180) - Dec_Magnetique 
 
-#calcul de la dérive magnétique
+#calcul de la dérive et du cap magnétique
 
-    d = asin((V_Wind*sin(Fcu_Value - direction_vent_magnetique))/Vp*cos(fpa))
+    d = asin((V_Wind*sin(Fcu_Value* (math.pi/180) - direction_vent_magnetique))/Vp*cos(fpa))
     d=d.real
     cap_magnetique = 0
     if d > 0 :
-        cap_magnetique = Fcu_Value - d
+        cap_magnetique = Fcu_Value* (math.pi/180) - d
         if cap_magnetique < 0 :
-            cap_magnetique +=360
+            cap_magnetique +=360* (math.pi/180)
     elif d < 0 :
-        cap_magnetique = Fcu_Value + d #cap en rad
-        if cap_magnetique > 360 :
-            cap_magnetique-=360 
+        cap_magnetique = Fcu_Value*(math.pi/180) + d #cap en rad
+        if cap_magnetique > 360* (math.pi/180) :
+            cap_magnetique-=360* (math.pi/180) 
     elif d == 0 :
-        cap_magnetique=Fcu_Value 
+        cap_magnetique=Fcu_Value* (math.pi/180)
     return cap_magnetique
 
 def calcul_route_managé(): 
@@ -83,16 +82,24 @@ def calcul_route_managé():
     global route
     global fpa
     global Wind_Comp
-    global Fcu_Value
 
 #calcul de la direction du vent à partir de sa provenance 
-    direction_vent_vrai = Wind_Comp + 180 
+    direction_vent_vrai = Wind_Comp + 180* (math.pi/180)
 
- #calcul de la dérive vrai 
-    d=asin((V_Wind*sin(10- direction_vent_vrai))/Vp*cos(fpa))
-    
-#calcul du cap vrai
-    cap_vrai = 10 - d
+ #calcul de la dérive et du cap vrai 
+    d=asin((V_Wind*sin(route- direction_vent_vrai))/Vp*cos(fpa))
+    d=d.real
+    cap_vrai = 0
+    if d > 0 :
+        cap_vrai = route - d
+        if cap_vrai < 0 :
+            cap_vrai +=360* (math.pi/180)
+    elif d < 0 :
+        cap_vrai = route + d #cap en rad
+        if cap_vrai > 360* (math.pi/180) :
+            cap_vrai-=360* (math.pi/180) 
+    elif d == 0 :
+        cap_vrai=route
     return cap_vrai
 
 
