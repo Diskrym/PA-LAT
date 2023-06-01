@@ -1,5 +1,6 @@
 #C:/msys64/mingw64/bin/python.exe c:/Users/louis/OneDrive/Bureau/PA-LAT/PA-LAT-RECEPTEUR.py
 
+
 from ivy.std_api import * #type: ignore
 from cmath import asin, sin, cos
 import math 
@@ -155,7 +156,5 @@ IvyBindMsg(on_FGS_Msg, r'^FGS_Msg xWpt=(\S+) yWpt=(\S+)')
 IvyBindMsg(on_MagnticDeclination, r'^MagneticDeclination=(\S+)')
 IvyBindMsg(on_WindComponent, r'^WindComponent VWind=(\S+) dirWind=(\S+)')
 IvyBindMsg(on_FCU_Mod, r'^FCULateral Mode=(\S+) Val=(\S+)')
-
-
 
 IvyMainLoop()
