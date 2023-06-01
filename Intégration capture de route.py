@@ -107,7 +107,6 @@ def calcul_route_sélecté():
 def calcul_route_managé(): 
     global V_Wind
     global Vp
-    global route
     global fpa
     global Wind_Comp
 
@@ -115,19 +114,19 @@ def calcul_route_managé():
     direction_vent_vrai = Wind_Comp + 180* (math.pi/180)
 
  #calcul de la dérive et du cap vrai 
-    d=asin((V_Wind*sin(route- direction_vent_vrai))/Vp*cos(fpa))
+    d=asin((V_Wind*sin(capture_daxe()- direction_vent_vrai))/Vp*cos(fpa))
     d=d.real
     cap_vrai = 0
     if d > 0 :
-        cap_vrai = route - d
+        cap_vrai = capture_daxe() - d
         if cap_vrai < 0 :
             cap_vrai +=360* (math.pi/180)
     elif d < 0 :
-        cap_vrai = route + d #cap en rad
+        cap_vrai = capture_daxe() + d #cap en rad
         if cap_vrai > 360* (math.pi/180) :
             cap_vrai-=360* (math.pi/180) 
     elif d == 0 :
-        cap_vrai=route
+        cap_vrai=capture_daxe()
     return cap_vrai
 
 
