@@ -6,9 +6,10 @@ Vector_Y=0
 Wind_Comp=0
 V_Wind=0
 Fcu_Mode=0
-Fcu_Value=0
-Heading=0
-Dec_Magnetique=0
+Fcu_Value=0  #Cap_magnetique objectif [deg]
+Heading=0   #Cap_magnetique actuel de l'avion [rad]
+Dec_Magnetique=0 #declinaison magentique [rad]
+phi=0
 
 def on_cx_proc(agent, connected) :
     pass
@@ -33,37 +34,60 @@ def on_FCU_Mod(agent, *larg) :
     print("Mode={}, Value={}".format(larg[0],larg[1]))
 
 
-def selected_mode(): #cap magnetique en entree
+def selected_mode(): #mode selecte, on entre un cap au fcu
+    """VARIABLE D'IVY"""
     global Heading
     global Dec_Magnetique
+    global Fcu_Value
+    global phi
 
-    cap_a=Heading*(math.pi/180) #cap en rad
+    Fcu_Value*=(math.pi/180) #conversion en [rad] du cap objectif
 
-    cap_actuel_magnetique= cap_a + Dec_Magnetique #calcul cap magnetique fct(cap actuel)
-    if cap_actuel_magnetique<0: #evite d'avoir des cap negatifs
-        cap_actuel_magnetique+=360
+    """PASSAGE DE CAP MAGNETIQUE A CAP VRAI"""
 
-    cap_odeg=Heading-Dec_Magnetique #calcul cap vrai objectif fct(entree fcu)
-    if cap_odeg<0: #evite d'avoir des cap negatifs
-        cap_odeg+=360
-    cap_o=cap_odeg*(math.pi/180)
+    Heading_v=Heading+Dec_Magnetique #Cap_vrai actuel [rad]
+    Fcu_Value_v=Fcu_Value+Dec_Magnetique #Cap_vrai objectif [rad]
 
-    if cap_a<=cap_o and cap_o<=cap_a+(180*(math.pi/180)): #calcul sens virage
-        print("vd") #établir les taux de roulis
+    if Heading_v<0: #evite cap negatifs
+        Heading_v+=360*(math.pi/180)
+    if Fcu_Value_v<0: #evite cap negatifs
+        Fcu_Value_v+=360*(math.pi/180)
+
+    """CALCUL ANGLE A PARCOURIR"""
+
+    if Heading_v<Fcu_Value_v<Heading_v+180*(math.pi/180): #calcul de l'angle a parcourir
+        d_objectif_v=Fcu_Value_v-Heading_v
     else:
-        print("vg")
+        if 0<=Heading_v<Fcu_Value_v:
+            d_objectif_v=Heading_v+(360*(math.pi/180))-Fcu_Value_v
+        else:
+            d_objectif_v=Heading_v-Fcu_Value_v
+    print("delta objectif:{}".format(d_objectif_v*(180/math.pi))) #print test de controle angle à parcourir
+
+    """BOUCLE INSTRUCTION MISE EN VIRAGE"""
+
+    tphi=1.7
+    tpsi=3*tphi
+    p=(((1/tpsi)-phi)*(1/tphi))*d_objectif_v
+
+    while d_objectif_v!=0:
+        if Heading_v<=Fcu_Value_v and Fcu_Value_v<=Heading_v+180*(math.pi/180):
+            p=1*p
+            print("vd p:{}".format(p)) #p>0
+        else:
+            p=(-1)*p
+            print("vg p:{}".format(p)) #p<0
+
+    pass
 
 def managed_mode(): #cap vrai en entree
     pass
 
 def main():
-    """if selected_mod
-        selected_mode()
-    else 
-        managed_mode()"""
+    selected_mode()
+    pass
 
-# main()
-
+main()
 
 app_name = "PA_LAT"
 ivy_bus = "127.255.255.255:2010"
