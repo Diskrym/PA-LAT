@@ -162,7 +162,7 @@ def Capture_Cap(): #mode selecte, on entre un cap au fcu
     if Fcu_Mode != "Managed" :
         Heading_v=psi+Dec_Magnetique #Cap_vrai actuel [rad]
         Fcu_Value_v=Fcu_Value+Dec_Magnetique #Cap_vrai objectif [rad]
-    elif :
+    else :
         Heading_v=psi
         Fcu_Value_v = calcul_route_managé()
 
