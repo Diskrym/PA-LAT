@@ -46,12 +46,12 @@ def on_WindComponent (agent, *larg):
     global V_Wind
     global Dir_Wind
     print("x={}, y={}".format(larg[0],larg[1]))
-    V_Wind = larg[0]
-    Dir_Wind = larg[1]
+    V_Wind = float(larg[0])
+    Dir_Wind = float(larg[1])
 
 def on_MagnticDeclination(agent, *larg) :
     global Dec_Magnetique
-    Dec_Magnetique = larg[0]
+    Dec_Magnetique = float(larg[0])
     print("DEC={}".format(larg[0]))
 
 def capture_daxe():
@@ -80,6 +80,8 @@ def capture_daxe():
     ey= -sin(khi_a)*(Vector_X- x1) + cos(khi_a) * (Vector_Y- y1) #cross_track
 
     khi_c = khi_a - math.asin(ey.real/(Gs*T_ey))
+
+    print('Envoie cap (fct axe) :', khi_c.real)
 
     return khi_c.real
 
@@ -110,6 +112,7 @@ def calcul_route_sélecté():
             cap_magnetique-=360* (math.pi/180) 
     elif d == 0 :
         cap_magnetique=Fcu_Value* (math.pi/180)
+    print('Envoie cap (fct route) :', cap_magnetique)
     return cap_magnetique
 
 def calcul_route_managé(): 
