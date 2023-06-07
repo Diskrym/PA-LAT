@@ -214,6 +214,7 @@ def on_FGS_Msg(agent, *larg):
         calcul_route_sélecté()
     elif Fcu_Mode == "SelectedHeading" :
         Capture_Cap()
+        IvySendMsg('Roll_Rate:{}'.format(Capture_Cap))
 
 
 
