@@ -25,9 +25,11 @@ y2 = - 10000
 
 Dec_Magnetique = str(13.69*(math.pi/180))
 V_Wind = str(0)
-Wind_Comp = str(90*(math.pi/180))
-Fcu_Mode="Managed"
-Fcu_Value=str(0)
+Wind_Comp = str(180*(math.pi/180))
+#Fcu_Mode="Managed"
+#Fcu_Mode="SelectedTrack"
+Fcu_Mode="SelectedHeading"
+Fcu_Value=str(90)
 roulisMax=str(0.575959)
 rollrateMax=str(0.261799)
 

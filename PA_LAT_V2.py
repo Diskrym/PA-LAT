@@ -49,7 +49,6 @@ def on_StateVector(agent, *larg):
     #     Capture_CAP(Fcu_Value)
     #############Pour Test################
 
-
 def on_FCU_Mod(agent, *larg) :
     global Fcu_Mode
     global Fcu_Value
@@ -126,10 +125,8 @@ def Capture_AXE():
             khi_a = 0
         if y2-y1 < 0 :
             khi_a = 3.14159
- 
 
     ey= -math.sin(khi_a)*(Vector_X- x1) + math.cos(khi_a) * (Vector_Y- y1) #cross_track
-
 
     if ey/(Gs*T_ey) > 1 :
         khi_c = khi_a - math.asin(1)
@@ -137,7 +134,6 @@ def Capture_AXE():
         khi_c = khi_a - math.asin(-1)
     else :
         khi_c = khi_a - math.asin(ey/(Gs*T_ey))
-
 
     if khi_c*(180/math.pi) <0 :
         khi_c=khi_c+360*(math.pi/180)
