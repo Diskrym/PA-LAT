@@ -38,15 +38,15 @@ def on_StateVector(agent, *larg):
     phi = float(larg[6])
     
     #############Pour Test################
-    # if Fcu_Mode == "Managed" :
-    #     print("AXE")
-    #     Capture_AXE()
-    # elif  Fcu_Mode == "SelectedTrack" :
-    #     print("ROUTE")
-    #     Capture_ROUTE(Fcu_Value)
-    # elif Fcu_Mode == "SelectedHeading" :
-    #     #Capture_Cap(Fcu_Value)
-    #     Capture_CAP(Fcu_Value)
+    if Fcu_Mode == "Managed" :
+        print("AXE")
+        Capture_AXE()
+    elif  Fcu_Mode == "SelectedTrack" :
+        print("ROUTE")
+        Capture_ROUTE(Fcu_Value)
+    elif Fcu_Mode == "SelectedHeading" :
+        #Capture_Cap(Fcu_Value)
+        Capture_CAP(Fcu_Value)
     #############Pour Test################
 
 def on_FCU_Mod(agent, *larg) :

@@ -1,0 +1,6 @@
+[JEREM,0,0,-1,flyOver]
+[CESAR,10000,0,2000,flyBy]
+[CLEME,10000,10000,-1,flyBy]
+[GWENE,-10000,10000,-1,flyOver]
+[JEANB,-10000,0,1000,flyBy]
+[JEREM,0,0,-1,flyOver]
