@@ -20,10 +20,6 @@ Max_Roll = 0
 Max_Roll_Rate = 0
 
 
-x1=0
-x2= -15000
-y1=0
-y2=0
 
 #init
 def on_cx_proc(agent, connected) :

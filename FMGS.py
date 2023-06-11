@@ -1,7 +1,6 @@
 import time
 import math
 from ivy.std_api import *
-from bus_address import bus_address
 
 class Waypoint:
     def __init__(self, name, x, y, z, type) :
@@ -92,16 +91,16 @@ def create_legs(waypoints):
 # Calculates the angle between the current position of the plane and the end waypoint
 # of the next leg, taking into account the next waypoint.
 # Parameters:
-#   - x_plane/y_plane: The current plane's position
+#   - x_start/y_start: The beginning of the leg
 #   - x_intermediate/y_intermediate: The next waypoint in the flight plan
 #   - x_arrival/y_arrival: The end waypoint of the next leg
 # Returns:
 #   - The angle between the current position and the end waypoint, in radians.
 
-def angle(x_plane, y_plane, x_intermediate, y_intermediate, x_arrival, y_arrival):
+def angle(x_start, y_start, x_intermediate, y_intermediate, x_arrival, y_arrival):
 
     # Vectors calulation between points
-    v1 = (x_plane - x_intermediate, y_plane - y_intermediate)
+    v1 = (x_start - x_intermediate, y_start - y_intermediate)
     v2 = (x_arrival - x_intermediate, y_arrival - y_intermediate)
 
     # Norms calculation of vectors
@@ -117,7 +116,7 @@ def angle(x_plane, y_plane, x_intermediate, y_intermediate, x_arrival, y_arrival
 # -------------------------------
 
 # ----- Function DIRTO -----
-# Seek for the next leg after the DIRTO reaches its point
+# Seek for the leg located just before the waypoint of the DIRTO
 # Parameters:
 #   - new_waypoint: The waypoint chosen for the new leg
 #   - legs: A list of Leg objects representing the legs between waypoints
@@ -146,10 +145,11 @@ def DIRTO(new_waypoint, legs, active_leg):
 #   - active_leg: The index of the currently active leg
 #   - x_plane/y_plane: The current plane's position
 #   - radius_circle: The specified radius to determine if the waypoint is passed
+#   - check_dirto : Boolean to check if we are in DIRTO mode
 # Returns:
 #   - active_leg: The updated index of the active leg
 
-def check_change_leg(legs, active_leg, x_plane, y_plane, radius_circle):
+def check_change_leg(legs, active_leg, x_plane, y_plane, radius_circle, check_dirto):
     # Calculate the distance between the plane and the waypoint of the active leg
     distance_plane = math.sqrt((math.pow(x_plane - legs[active_leg].end_x, 2) + math.pow(y_plane - legs[active_leg].end_y, 2)))
 
@@ -171,25 +171,18 @@ def check_change_leg(legs, active_leg, x_plane, y_plane, radius_circle):
 # Returns:
 #   - The radius of the circle, in meters
 
-def radius(legs, active_leg, x, y, ground_speed, phi_max, check_dirto):
+def radius(legs, active_leg, x, y, ground_speed, phi_max):
     g = 9.80665 # m.s-2
-    if active_leg < len(legs) and legs[active_leg].type == "flyBy":
-        if active_leg + 1 < len(legs) and check_dirto == 0:
-            alpha = angle(x, y, legs[active_leg + 1].start_x, legs[active_leg + 1].start_y, legs[active_leg + 1].end_x, legs[active_leg + 1].end_y)
-        elif check_dirto == 1:
-            alpha = angle(x, y, legs[active_leg].start_x, legs[active_leg].start_y, legs[active_leg].end_x, legs[active_leg].end_y)
-        if phi_max == 0 or alpha == 0:
-            return 2 * ground_speed # m
-        else:
-            distance = math.pow(ground_speed, 2) / (g * math.tan(alpha/2) * math.tan(phi_max))
-            if distance < 2 * ground_speed:
-                return 2 * ground_speed
-            elif distance < 4630:
-                return 4630
-            else:
-                return distance
+    if legs[active_leg].type == "flyBy" and active_leg + 1 < len(legs):
+        alpha = angle(x, y, legs[active_leg + 1].start_x, legs[active_leg + 1].start_y, legs[active_leg + 1].end_x, legs[active_leg + 1].end_y)
     else:
-        return 2 * ground_speed #m
+        return 2 * ground_speed # m
+
+    if phi_max == 0 or alpha == 0:
+        return 4630 # m
+    else:
+        distance = math.pow(ground_speed, 2) / (g * math.tan(alpha/2) * math.tan(phi_max))
+        return min(max(distance, 2 * ground_speed), 4630)
     
 # -------------------------------
 
@@ -220,10 +213,11 @@ def on_dirto (agent, *larg):
     global check_dirto
     
     dirto = larg[0]
-    check_dirto = 1
+    check_dirto = True
     x_leg_dirto = x_plane
     y_leg_dirto = y_plane
     
+    print("DIRTO " + dirto)
     active_leg = DIRTO(dirto, legs, active_leg)
     
 
@@ -243,8 +237,7 @@ def on_state_vector(agent, *larg):
     flight_path_angle = float(larg[4]) 
     psi = float(larg[5]) 
     phi = float(larg[6])
-    print("paramètres avion x : %s y : %s z : %s %s %s %s %s" %(larg[0], larg[1], larg[2], larg[3], larg[4], larg[5], larg[6]))
-
+    print("StateVector x =", x_plane, "y =", y_plane, "z =", z_plane, "VP =", Vp, "fpa =", flight_path_angle, "psi =", psi, "phi =", phi)
 
 def on_perf(agent, *larg):
 
@@ -262,27 +255,31 @@ def on_perf(agent, *larg):
     global check_dirto
 
     phi_max = float(larg[9])
-    xdot = Vp * math.cos(flight_path_angle) * math.cos(phi) + v_wind * math.cos(dir_wind + math.pi)
-    ydot = Vp * math.cos(flight_path_angle) * math.sin(phi) + v_wind * math.sin(dir_wind + math.pi)
-    ground_speed = math.sqrt(math.pow(xdot, 2) + math.pow(ydot, 2))
+    print("Perfo roulisMax =", phi_max)
+    x_dot = Vp * math.cos(flight_path_angle) * math.cos(phi) + v_wind * math.cos(dir_wind + math.pi)
+    y_dot = Vp * math.cos(flight_path_angle) * math.sin(phi) + v_wind * math.sin(dir_wind + math.pi)
+    ground_speed = math.sqrt(math.pow(x_dot, 2) + math.pow(y_dot, 2))
 
     old_active_leg = active_leg
-    
-    if check_dirto == 0:
-        radius_circle = radius(legs, active_leg, legs[active_leg].start_x, legs[active_leg].start_y, ground_speed, phi_max, check_dirto)
+
+    if check_dirto:
+        radius_circle = radius(legs, active_leg, x_leg_dirto, y_leg_dirto, ground_speed, phi_max)
     else:
-        radius_circle = radius(legs, active_leg, x_leg_dirto, y_leg_dirto, ground_speed, phi_max, check_dirto)
-    active_leg = check_change_leg(legs, active_leg, x_plane, y_plane, radius_circle)
+        radius_circle = radius(legs, active_leg, legs[active_leg].start_x, legs[active_leg].start_y, ground_speed, phi_max)
+
+    active_leg = check_change_leg(legs, active_leg, x_plane, y_plane, radius_circle, check_dirto)
     if old_active_leg < active_leg:
-        check_dirto = 0
+        check_dirto = False
     if (active_leg == len(legs)):
         active_leg = len(legs) - 1
-    if check_dirto == 0:
-        IvySendMsg("FM_Active_leg x1=" + str(legs[active_leg].start_x) + " x2=" + str(legs[active_leg].end_x) + " y1=" + str(legs[active_leg].start_y) + " y2=" + str(legs[active_leg].end_y) + " h_contrainte=" + str(legs[active_leg].z_constraint))
+    if check_dirto:
+        print("FM_Active_leg x1=" + str(x_leg_dirto) + " x2=" + str(legs[active_leg].start_x) + " y1=" + str(y_leg_dirto) + " y2=" + str(legs[active_leg].start_y) + " h_contrainte=" + str(legs[active_leg].z_constraint))
+        IvySendMsg("FM_Active_leg x1=" + str(x_leg_dirto) + " x2=" + str(legs[active_leg].start_x) + " y1=" + str(y_leg_dirto) + " y2=" + str(legs[active_leg].start_y) + " h_contrainte=" + str(legs[active_leg].z_constraint))
     else:
-        IvySendMsg("FM_Active_leg x1=" + str(x_leg_dirto) + " x2=" + str(legs[active_leg].end_x) + " y1=" + str(y_leg_dirto) + " y2=" + str(legs[active_leg].end_y) + " h_contrainte=" + str(legs[active_leg].z_constraint))
+        print("FM_Active_leg x1=" + str(legs[active_leg].start_x) + " x2=" + str(legs[active_leg].end_x) + " y1=" + str(legs[active_leg].start_y) + " y2=" + str(legs[active_leg].end_y) + " h_contrainte=" + str(legs[active_leg].z_constraint))
+        IvySendMsg("FM_Active_leg x1=" + str(legs[active_leg].start_x) + " x2=" + str(legs[active_leg].end_x) + " y1=" + str(legs[active_leg].start_y) + " y2=" + str(legs[active_leg].end_y) + " h_contrainte=" + str(legs[active_leg].z_constraint))
 
-def on_Time_1(agent, *larg):
+def on_time_1(agent, *larg):
     
     global x_plane
     global y_plane
@@ -293,47 +290,49 @@ def on_Time_1(agent, *larg):
     global phi
     
     if float(larg[0]) == 1.0:
+        print("InitStateVector x=" + str(x_plane) + " y=" + str(y_plane) + " z=" + str(z_plane) + " Vp=" + str(Vp) + " fpa=" + str(flight_path_angle) +  " psi=" + str(psi) + " phi=" + str(phi))
+        print("WindComponent VWind=" + str(v_wind) + " dirWind=" + str(dir_wind))
+        print("MagneticDeclination=" + str(magnetic_declination))
         IvySendMsg("InitStateVector x=" + str(x_plane) + " y=" + str(y_plane) + " z=" + str(z_plane) + " Vp=" + str(Vp) + " fpa=" + str(flight_path_angle) +  " psi=" + str(psi) + " phi=" + str(phi))
         IvySendMsg("WindComponent VWind=" + str(v_wind) + " dirWind=" + str(dir_wind))
         IvySendMsg("MagneticDeclination=" + str(magnetic_declination))
-
-
 
 # Internal datas
 magnetic_declination = math.radians(13.69) # rad
 khi = math.radians(14) + magnetic_declination # rad
 
-v_wind = knots_to_mps(50) # m.s-1
-dir_wind = math.radians(104) + math.pi + magnetic_declination # rad
+v_wind = knots_to_mps(0) # m.s-1
+dir_wind = math.radians(20) + magnetic_declination  # rad
 
 x_plane = 0 # m
 y_plane = 0 # m
 z_plane = feet_to_meters(25) # m
-Vp = knots_to_mps(100) # m.s-1
+Vp = knots_to_mps(20) # m.s-1
 flight_path_angle = math.radians(0) # rad
-d = math.asin((v_wind * math.sin(khi - dir_wind))/(Vp * math.cos(flight_path_angle)))
-phi = math.radians(0) # rad // roll
-psi = khi - d # rad // yaw
-check_dirto = 0
+d = math.asin((v_wind * math.sin(khi - dir_wind))/(Vp * math.cos(flight_path_angle))) # rad / drift angle
+phi = math.radians(0) # rad / roll
+psi = khi - d # rad / heading
+check_dirto = False
 x_leg_dirto = 0
 y_leg_dirto = 0
+
+active_leg = 0
+i = 0
 
 file = "FPL.txt"
 waypoints = create_waypoints(file)
 
 legs = create_legs(waypoints)
-i = 0
 for leg in legs:
     print("Leg number", i)
     print(leg)
     print("-------------")
     i += 1
-    
-active_leg = 0
+
 
 app_name="FMGS"
 # Local
-ivy_bus=bus_address
+ivy_bus="127.0.0.1:2010" 
 # Broadcast
 # ivy_bus="10.3.63.255:2022"
 
@@ -346,7 +345,7 @@ time.sleep(1.0)
 IvyBindMsg(on_state_vector, '^StateVector x=(\S+) y=(\S+) z=(\S+) Vp=(\S+) fpa=(\S+) psi=(\S+) phi=(\S+)')
 IvyBindMsg(on_dirto, '^DIRTO (\S+)')
 IvyBindMsg(on_perf, '^Perfo ViManage=(\S+) ViMin=(\S+) ViMax=(\S+) nxMin=(\S+) nxMax=(\S+) nzMin=(\S+) nzMax=(\S+) fpaMin=(\S+) fpaMax=(\S+) roulisMax=(\S+) rollrateMax=(\S+)')
-IvyBindMsg(on_Time_1, '^Time t=(\S+)')
+IvyBindMsg(on_time_1, '^Time t=(\S+)')
 
 IvyMainLoop()
 
