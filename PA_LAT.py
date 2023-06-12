@@ -8,9 +8,10 @@ Wind_Comp = V_Wind = 0
 Dec_Magnetique = 0
 Fcu_Mode = ""
 Fcu_Value = 0
-Vp = fpa = psi = phi = 0
+fpa = psi = phi = 0
 Max_Roll_Rate = Max_Roll = 0
 x1=x2=y1=y2=0
+Vp=100
 
 #init
 def on_cx_proc(agent, connected) :
@@ -65,7 +66,7 @@ def on_WindComponent (agent, *larg):
     global V_Wind
     global Wind_Comp
     V_Wind = float(larg[0]) 
-    Wind_Comp = float(larg[1])
+    Wind_Comp = float(larg[1]) 
 
 def on_MagnticDeclination(agent, *larg) :
     global Dec_Magnetique
@@ -128,7 +129,10 @@ def Capture_ROUTE(khi_c):
 
     if Fcu_Mode == "Managed" :
         #calcul de la direction du vent à partir de sa provenance 
-        direction_vent_vrai = Wind_Comp + 180* (math.pi/180)
+        if Wind_Comp > 180 :
+            direction_vent_vrai = Wind_Comp - 180 * (math.pi/180)
+        else:
+            direction_vent_vrai = Wind_Comp + 180 * (math.pi/180) 
          #calcul de la dérive et du cap vrai
         d = math.asin((V_Wind*math.sin(khi_c - direction_vent_vrai))/Vp*math.cos(fpa))
     else : #Pour calcul en mode select
@@ -141,11 +145,11 @@ def Capture_ROUTE(khi_c):
 
     #Evite cap <0 et >360 
     if d > 0 :
-        cap = khi_c - d
+        cap = khi_c + d
         if cap < 0 :
             cap +=360* (math.pi/180)
     elif d < 0 :
-        cap = khi_c + d #cap en rad
+        cap = khi_c - d #cap en rad
         if cap > 360* (math.pi/180) :
             cap-=360* (math.pi/180) 
     elif d == 0 :
@@ -200,7 +204,7 @@ def Capture_CAP (target):
         p = -Max_Roll_Rate
     
     IvySendMsg("APLatControl rollRate={}".format(str(p)))
-bus_address = "127.255.255.255:2010"
+bus_address = "127.255.255:2010"
 app_name = "PA_LAT"
 ivy_bus = bus_address
 IvyInit(app_name,"[%s ready]", 0, on_cx_proc, on_die_proc)

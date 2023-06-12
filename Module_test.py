@@ -23,22 +23,21 @@ x2 = 10000
 y2 = 0
 magnetic_declination = math.radians(13.69)
 Dec_Magnetique = str(13.69*(math.pi/180))
-V_Wind = str(15.4333)
-Wind_Comp = str(math.radians(90) + magnetic_declination +math.pi)
+V_Wind = str(10)
+Wind_Comp = math.radians(270) + magnetic_declination
 Fcu_Mode="Managed"
 #Fcu_Mode="SelectedTrack"
 #Fcu_Mode="SelectedHeading"
 Fcu_Value=str(0)
 roulisMax=str(0.575959)
 rollrateMax=str(0.261799)
-
-for i in range(0,100):
+IvySendMsg('WindComponent VWind={} dirWind={}'.format(V_Wind,Wind_Comp))
+IvySendMsg('MagneticDeclination={}'.format(Dec_Magnetique))
+IvySendMsg('FCULateral Mode={} Val={}'.format(Fcu_Mode,Fcu_Value))
+for i in range(0,60):
     time.sleep(1.0)
     print(x2,",",y2)
     IvySendMsg('FM_Active_leg x1={} x2={} y1={} y2={} h_contrainte={}'.format(x1,x2,y1,y2,0))
-    IvySendMsg('MagneticDeclination={}'.format(Dec_Magnetique))
-    IvySendMsg('WindComponent VWind={} dirWind={}'.format(V_Wind,Wind_Comp))
-    IvySendMsg('FCULateral Mode={} Val={}'.format(Fcu_Mode,Fcu_Value))
     IvySendMsg('Perfo ViManage={} ViMin={} ViMax={} nxMin={} nxMax={} nzMin={} nzMax={} fpaMin={} fpaMax={} roulisMax={} rollrateMax={}'.format(0,0,0,0,0,0,0,0,0,roulisMax,rollrateMax))
 
 x1 = 10000
@@ -51,7 +50,7 @@ for i in range (0,60) :
     IvySendMsg('FM_Active_leg x1={} x2={} y1={} y2={} h_contrainte={}'.format(x1,x2,y1,y2,0))
     IvySendMsg('MagneticDeclination={}'.format(Dec_Magnetique))
     IvySendMsg('WindComponent VWind={} dirWind={}'.format(V_Wind,Wind_Comp))
-    IvySendMsg('FCULateral Mode={} Val={}'.format(Fcu_Mode,Fcu_Value))
+    #IvySendMsg('FCULateral Mode={} Val={}'.format(Fcu_Mode,Fcu_Value))
     IvySendMsg('Perfo ViManage={} ViMin={} ViMax={} nxMin={} nxMax={} nzMin={} nzMax={} fpaMin={} fpaMax={} roulisMax={} rollrateMax={}'.format(0,0,0,0,0,0,0,0,0,roulisMax,rollrateMax))
 
 x1 = 10000
@@ -63,9 +62,9 @@ for i in range (0,60) :
     time.sleep(1.0)
     print(x2,",",y2)
     IvySendMsg('FM_Active_leg x1={} x2={} y1={} y2={} h_contrainte={}'.format(x1,x2,y1,y2,0))
-    IvySendMsg('MagneticDeclination={}'.format(Dec_Magnetique))
-    IvySendMsg('WindComponent VWind={} dirWind={}'.format(V_Wind,Wind_Comp))
-    IvySendMsg('FCULateral Mode={} Val={}'.format(Fcu_Mode,Fcu_Value))
+    #IvySendMsg('MagneticDeclination={}'.format(Dec_Magnetique))
+    #IvySendMsg('WindComponent VWind={} dirWind={}'.format(V_Wind,Wind_Comp))
+    #IvySendMsg('FCULateral Mode={} Val={}'.format(Fcu_Mode,Fcu_Value))
     IvySendMsg('Perfo ViManage={} ViMin={} ViMax={} nxMin={} nxMax={} nzMin={} nzMax={} fpaMin={} fpaMax={} roulisMax={} rollrateMax={}'.format(0,0,0,0,0,0,0,0,0,roulisMax,rollrateMax))
 
 
@@ -79,9 +78,9 @@ for i in range (0,60) :
     time.sleep(1.0)
     print(x2,",",y2)
     IvySendMsg('FM_Active_leg x1={} x2={} y1={} y2={} h_contrainte={}'.format(x1,x2,y1,y2,0))
-    IvySendMsg('MagneticDeclination={}'.format(Dec_Magnetique))
-    IvySendMsg('WindComponent VWind={} dirWind={}'.format(V_Wind,Wind_Comp))
-    IvySendMsg('FCULateral Mode={} Val={}'.format(Fcu_Mode,Fcu_Value))
+    # IvySendMsg('MagneticDeclination={}'.format(Dec_Magnetique))
+    # IvySendMsg('WindComponent VWind={} dirWind={}'.format(V_Wind,Wind_Comp))
+    # IvySendMsg('FCULateral Mode={} Val={}'.format(Fcu_Mode,Fcu_Value))
     IvySendMsg('Perfo ViManage={} ViMin={} ViMax={} nxMin={} nxMax={} nzMin={} nzMax={} fpaMin={} fpaMax={} roulisMax={} rollrateMax={}'.format(0,0,0,0,0,0,0,0,0,roulisMax,rollrateMax))
 
 # for i in range (0,60) :

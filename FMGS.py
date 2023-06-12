@@ -332,7 +332,7 @@ for leg in legs:
 
 app_name="FMGS"
 # Local
-ivy_bus="127.0.0.1:2010" 
+ivy_bus="127.255.255.255:2010" 
 # Broadcast
 # ivy_bus="10.3.63.255:2022"
 
