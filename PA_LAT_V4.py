@@ -73,7 +73,6 @@ def on_MagnticDeclination(agent, *larg) :
     Dec_Magnetique = float(larg[0])
 
 def Capture_AXE():
-
     global Vp
     global fpa
     global psi
@@ -83,13 +82,11 @@ def Capture_AXE():
     global y1
     global x2
     global y2
-
     # calcul vecteur vitesse
     T_ey = 37 # 10*TauPsi
 
     xdot = Vp*math.cos(fpa) * math.cos(psi) + V_Wind * math.cos(Wind_Comp+math.pi)
-    ydot = Vp*math.cos(fpa) * math.sin(psi) + V_Wind * math.sin(Wind_Comp+math.pi) 
-    
+    ydot = Vp*math.cos(fpa) * math.sin(psi) + V_Wind * math.sin(Wind_Comp+math.pi)  
     Gs = math.sqrt((math.pow(ydot,2)) + (math.pow(xdot,2))) #ground speed
 
     if y2-y1 != 0 and x2-x1 != 0:
@@ -114,7 +111,6 @@ def Capture_AXE():
         khi_c = khi_a - math.asin(-1)
     else :
         khi_c = khi_a - math.asin(ey/(Gs*T_ey))
-
     if khi_c*(180/math.pi) <0 :
         khi_c=khi_c+360*(math.pi/180)
     elif khi_c*(180/math.pi) > 360 :
@@ -202,5 +198,4 @@ IvyBindMsg(on_FGS_Msg, r'^FM_Active_leg x1=(\S+) x2=(\S+) y1=(\S+) y2=(\S+) h_co
 IvyBindMsg(on_MagnticDeclination, r'^MagneticDeclination=(\S+)')
 IvyBindMsg(on_WindComponent, r'^WindComponent VWind=(\S+) dirWind=(\S+)')
 IvyBindMsg(on_Perfo_Msg, r'^Perfo ViManage=(\S+) ViMin=(\S+) ViMax=(\S+) nxMin=(\S+) nxMax=(\S+) nzMin=(\S+) nzMax=(\S+) fpaMin=(\S+) fpaMax=(\S+) roulisMax=(\S+) rollrateMax=(\S+)')
-
 IvyMainLoop()

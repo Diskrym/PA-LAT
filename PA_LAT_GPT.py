@@ -1,6 +1,8 @@
 from ivy.std_api import * #type: ignore
 import math 
 from bus_address import bus_address
+import time
+
 
 Vector_X = 0
 Vector_Y = 0
@@ -8,9 +10,11 @@ Wind_Comp = V_Wind = 0
 Dec_Magnetique = 0
 Fcu_Mode = ""
 Fcu_Value = 0
-Vp = fpa = psi = phi = 0
+fpa = psi = phi = 0
 Max_Roll_Rate = Max_Roll = 0
 x1=x2=y1=y2=0
+Vp=100
+old_current_time =0
 
 #init
 def on_cx_proc(agent, connected) :
@@ -26,16 +30,34 @@ def on_StateVector(agent, *larg):
     global fpa
     global psi
     global phi
-    print(phi)   
     Vector_X = float(larg[0])
     Vector_Y = float(larg[1])
     Vp = float(larg[3])
     fpa = float(larg[4])
     psi = float(larg[5])
     phi = float(larg[6])
-    
-    print(x2,"PA", y2)
 
+    # Write the values to the file
+    write_values_to_file()
+
+def write_values_to_file():
+    global old_current_time
+    # Obtenir le temps en secondes depuis le début du programme
+    current_time = int(time.time())
+
+    if current_time != old_current_time :
+        # Créer une chaîne avec la valeur de phi et psi
+        #values_str = f"Time (seconds): {current_time}, phi: {phi}, psi: {psi}\n"
+        values_str = f"{current_time},{phi * (180/math.pi)},{psi*(180/math.pi)}\n"
+
+        # Ouvrir le fichier en mode ajout et écrire les valeurs
+        with open("Essai Route vent 30 dir = 90.txt", "a") as file:
+            file.write(values_str)
+        old_current_time = current_time
+
+
+    
+    
 def on_FCU_Mod(agent, *larg) :
     global Fcu_Mode
     global Fcu_Value
@@ -66,16 +88,15 @@ def on_Perfo_Msg(agent, *larg) :
 
 def on_WindComponent (agent, *larg):
     global V_Wind
-    global Dir_Wind
-    V_Wind = float(larg[0])
-    Dir_Wind = float(larg[1])
+    global Wind_Comp
+    V_Wind = float(larg[0]) 
+    Wind_Comp = float(larg[1]) 
 
 def on_MagnticDeclination(agent, *larg) :
     global Dec_Magnetique
     Dec_Magnetique = float(larg[0])
 
 def Capture_AXE():
-
     global Vp
     global fpa
     global psi
@@ -85,15 +106,11 @@ def Capture_AXE():
     global y1
     global x2
     global y2
-
     # calcul vecteur vitesse
     T_ey = 37 # 10*TauPsi
 
-    xdot = Vp * math.cos(fpa) * math.cos(psi) + V_Wind * math.cos(Wind_Comp + math.pi)
-    ydot = Vp * math.cos(fpa) * math.sin(psi) + V_Wind * math.sin(Wind_Comp + math.pi)
- 
-
-    
+    xdot = Vp*math.cos(fpa) * math.cos(psi) + V_Wind * math.cos(Wind_Comp+math.pi)
+    ydot = Vp*math.cos(fpa) * math.sin(psi) + V_Wind * math.sin(Wind_Comp+math.pi)  
     Gs = math.sqrt((math.pow(ydot,2)) + (math.pow(xdot,2))) #ground speed
 
     if y2-y1 != 0 and x2-x1 != 0:
@@ -111,16 +128,13 @@ def Capture_AXE():
             khi_a = 0
         if x2-x1 < 0 :
             khi_a = 180 * (math.pi/180)
-
     ey= -math.sin(khi_a)*(Vector_X- x1) + math.cos(khi_a) * (Vector_Y- y1) #cross_track
-
     if ey/(Gs*T_ey) > 1 :
         khi_c = khi_a - math.asin(1)
     elif ey/(Gs*T_ey) < -1 :
         khi_c = khi_a - math.asin(-1)
     else :
         khi_c = khi_a - math.asin(ey/(Gs*T_ey))
-
     if khi_c*(180/math.pi) <0 :
         khi_c=khi_c+360*(math.pi/180)
     elif khi_c*(180/math.pi) > 360 :
@@ -135,31 +149,18 @@ def Capture_ROUTE(khi_c):
 
     if Fcu_Mode == "Managed" :
         #calcul de la direction du vent à partir de sa provenance 
-        direction_vent_vrai = Wind_Comp + 180 * (math.pi / 180)
          #calcul de la dérive et du cap vrai
-        d = math.asin((V_Wind * math.sin(khi_c - direction_vent_vrai)) / (Vp * math.cos(fpa)))    
+        d = math.asin((V_Wind*math.sin(khi_c - Wind_Comp))/Vp*math.cos(fpa))
     else : #Pour calcul en mode select
         khi_c = khi_c * (math.pi/180)
-        #calcul de la direction du vent à partir de sa provenance 
-        direction_vent_magnetique = Wind_Comp + 180* (math.pi/180) - Dec_Magnetique 
          #calcul de la dérive et du cap vrai
-        d = math.asin((V_Wind * math.sin(khi_c - direction_vent_magnetique))/Vp * math.cos(fpa))
+        d = math.asin((V_Wind * math.sin(khi_c - Wind_Comp))/Vp * math.cos(fpa))
     cap = 0
-
-    #Evite cap <0 et >360 
-    if d > 0 :
-        cap = khi_c - d
-        if cap < 0 :
-            cap +=360* (math.pi/180)
-    elif d < 0 :
-        cap = khi_c + d #cap en rad
-        if cap > 360* (math.pi/180) :
-            cap-=360* (math.pi/180) 
-    elif d == 0 :
-        cap = khi_c
-    print("khi_c", khi_c)
-    print("cap", cap)
-    print("psi", psi)
+    cap = khi_c - d
+    if cap < 0 :
+        cap +=360* (math.pi/180)
+    elif cap > 360* (math.pi/180) :
+        cap-=360* (math.pi/180) 
     Capture_CAP(cap)
     
 def Capture_CAP (target):
@@ -181,9 +182,9 @@ def Capture_CAP (target):
     p=0
 
 
-    if Fcu_Mode == "SelectedHeading":
-        target = target * (math.pi / 180) - Dec_Magnetique
-    elif Fcu_Mode == "SelectedTrack":
+    if Fcu_Mode == "SelectedHeading" :
+        target = target*(math.pi/180) - Dec_Magnetique
+    elif Fcu_Mode == "SelectedTrack" :
         target = target - Dec_Magnetique
     
     
@@ -202,8 +203,6 @@ def Capture_CAP (target):
     if phic < -Max_Roll:
         phic = -Max_Roll
 
-    print("PHI_C",phic)
-    print("PHI",phi)
     p = (phic-phi)/TauPhi
 
     if (p>=Max_Roll_Rate):
@@ -211,9 +210,8 @@ def Capture_CAP (target):
     if (p<=(-Max_Roll_Rate)):
         p = -Max_Roll_Rate
     
-    print('p',p)
     IvySendMsg("APLatControl rollRate={}".format(str(p)))
-bus_address = "127.255.255.255:2010"
+bus_address = "127.255.255:2010"
 app_name = "PA_LAT"
 ivy_bus = bus_address
 IvyInit(app_name,"[%s ready]", 0, on_cx_proc, on_die_proc)
@@ -224,5 +222,4 @@ IvyBindMsg(on_FGS_Msg, r'^FM_Active_leg x1=(\S+) x2=(\S+) y1=(\S+) y2=(\S+) h_co
 IvyBindMsg(on_MagnticDeclination, r'^MagneticDeclination=(\S+)')
 IvyBindMsg(on_WindComponent, r'^WindComponent VWind=(\S+) dirWind=(\S+)')
 IvyBindMsg(on_Perfo_Msg, r'^Perfo ViManage=(\S+) ViMin=(\S+) ViMax=(\S+) nxMin=(\S+) nxMax=(\S+) nzMin=(\S+) nzMax=(\S+) fpaMin=(\S+) fpaMax=(\S+) roulisMax=(\S+) rollrateMax=(\S+)')
-
 IvyMainLoop()
