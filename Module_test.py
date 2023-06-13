@@ -30,7 +30,6 @@ Wind_Comp = math.radians(270) + magnetic_declination
 Fcu_Mode="Managed"
 #Fcu_Mode="SelectedTrack"
 #Fcu_Mode="SelectedHeading"
-
 Fcu_Value=str(0)
 roulisMax=str(0.575959)
 rollrateMax=str(0.261799)
@@ -40,7 +39,8 @@ IvySendMsg('FCULateral Mode={} Val={}'.format(Fcu_Mode,Fcu_Value))
 
 for i in range(0,40):
     time.sleep(1.0)
-    print(x2,",",y2)
+    #IvySendMsg('APNzControl nz={}'.format(nz))
+    #IvySendMsg('APNzControl nx={}'.format(nx))
     IvySendMsg('FM_Active_leg x1={} x2={} y1={} y2={} h_contrainte={}'.format(x1,x2,y1,y2,0))
     IvySendMsg('Perfo ViManage={} ViMin={} ViMax={} nxMin={} nxMax={} nzMin={} nzMax={} fpaMin={} fpaMax={} roulisMax={} rollrateMax={}'.format(0,0,0,0,0,0,0,0,0,roulisMax,rollrateMax))
 

@@ -129,32 +129,14 @@ def Capture_ROUTE(khi_c):
 
     if Fcu_Mode == "Managed" :
         #calcul de la direction du vent à partir de sa provenance 
-        if Wind_Comp > 180 * (math.pi/180):
-            direction_vent_vrai = Wind_Comp - 180 * (math.pi/180)
-        elif Wind_Comp <180 * (math.pi/180):
-            direction_vent_vrai = Wind_Comp + 180 * (math.pi/180) 
-        elif Wind_Comp == 180 * (math.pi/180):
-            direction_vent_vrai = 0
-        else :
-            direction_vent_vrai = 180 * (math.pi/180)
          #calcul de la dérive et du cap vrai
-        d = math.asin((V_Wind*math.sin(khi_c - direction_vent_vrai))/Vp*math.cos(fpa))
+        d = math.asin((V_Wind*math.sin(khi_c - Wind_Comp))/Vp*math.cos(fpa))
     else : #Pour calcul en mode select
         khi_c = khi_c * (math.pi/180)
-        #calcul de la direction du vent à partir de sa provenance 
-        if Wind_Comp > 180 * (math.pi/180) :
-            direction_vent_magnetique = Wind_Comp - 180* (math.pi/180) - Dec_Magnetique
-        elif Wind_Comp < 180 * (math.pi/180):
-            direction_vent_magnetique = Wind_Comp + 180* (math.pi/180) - Dec_Magnetique
-        elif Wind_Comp == 180 * (math.pi/180) :
-            direction_vent_magnetique = 0
-        else :
-            direction_vent_magnetique = 180 * (math.pi/180)
          #calcul de la dérive et du cap vrai
-        d = math.asin((V_Wind * math.sin(khi_c - direction_vent_magnetique))/Vp * math.cos(fpa))
+        d = math.asin((V_Wind * math.sin(khi_c - Wind_Comp))/Vp * math.cos(fpa))
     cap = 0
-
-    cap = khi_c + d
+    cap = khi_c - d
     if cap < 0 :
         cap +=360* (math.pi/180)
     elif cap > 360* (math.pi/180) :
