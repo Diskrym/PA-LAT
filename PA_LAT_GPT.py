@@ -51,7 +51,7 @@ def write_values_to_file():
         values_str = f"{current_time},{phi * (180/math.pi)},{psi*(180/math.pi)}\n"
 
         # Ouvrir le fichier en mode ajout et écrire les valeurs
-        with open("Essai Route vent 30 dir = 90.txt", "a") as file:
+        with open("Essai axe 10000 10000 au dép.txt", "a") as file:
             file.write(values_str)
         old_current_time = current_time
 

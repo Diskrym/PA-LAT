@@ -138,7 +138,7 @@ def Capture_ROUTE(khi_c):
     elif cap > 360* (math.pi/180) :
         cap-=360* (math.pi/180) 
     Capture_CAP(cap)
-    
+        
 def Capture_CAP (target):
 
     global Vp

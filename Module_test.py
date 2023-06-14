@@ -19,14 +19,14 @@ ivy_bus = "127.255.255:2010"
 IvyInit(app_name,"[%s ready]", 0, on_cx_proc, on_die_proc)
 IvyStart(ivy_bus)
 time.sleep(1.0)
-x1 = 0
+x1 = 40000
 y1 = 0
-x2 = 10000
-y2 = 0
+x2 = 80000
+y2 = 40000
 magnetic_declination = math.radians(13.69)
 Dec_Magnetique = str(13.69*(math.pi/180))
-V_Wind = str(10)
-Wind_Comp = math.radians(90) + magnetic_declination
+V_Wind = str(0)
+Wind_Comp = math.radians(180) + magnetic_declination
 Fcu_Mode="Managed"
 #Fcu_Mode="SelectedTrack"
 #Fcu_Mode="SelectedHeading"
@@ -37,7 +37,7 @@ IvySendMsg('WindComponent VWind={} dirWind={}'.format(V_Wind,Wind_Comp))
 IvySendMsg('MagneticDeclination={}'.format(Dec_Magnetique))
 IvySendMsg('FCULateral Mode={} Val={}'.format(Fcu_Mode,Fcu_Value))
 
-for i in range(0,40):
+for i in range(0,1000):
     time.sleep(1.0)
     IvySendMsg('FM_Active_leg x1={} x2={} y1={} y2={} h_contrainte={}'.format(x1,x2,y1,y2,0))
     IvySendMsg('Perfo ViManage={} ViMin={} ViMax={} nxMin={} nxMax={} nzMin={} nzMax={} fpaMin={} fpaMax={} roulisMax={} rollrateMax={}'.format(0,0,0,0,0,0,0,0,0,roulisMax,rollrateMax))
