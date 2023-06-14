@@ -1,8 +1,6 @@
 from ivy.std_api import * #type: ignore
 import math 
 from bus_address import bus_address
-import time
-
 
 Vector_X = 0
 Vector_Y = 0
@@ -14,7 +12,6 @@ fpa = psi = phi = 0
 Max_Roll_Rate = Max_Roll = 0
 x1=x2=y1=y2=0
 Vp=100
-old_current_time =0
 
 #init
 def on_cx_proc(agent, connected) :
@@ -36,27 +33,6 @@ def on_StateVector(agent, *larg):
     fpa = float(larg[4])
     psi = float(larg[5])
     phi = float(larg[6])
-
-    # Write the values to the file
-    write_values_to_file()
-
-def write_values_to_file():
-    global old_current_time
-    # Obtenir le temps en secondes depuis le début du programme
-    current_time = int(time.time())
-
-    if current_time != old_current_time :
-        # Créer une chaîne avec la valeur de phi et psi
-        #values_str = f"Time (seconds): {current_time}, phi: {phi}, psi: {psi}\n"
-        values_str = f"{current_time},{phi * (180/math.pi)},{psi*(180/math.pi)}\n"
-
-        # Ouvrir le fichier en mode ajout et écrire les valeurs
-        with open("Essai Route vent 30 dir = 180.txt", "a") as file:
-            file.write(values_str)
-        old_current_time = current_time
-
-
-    
     
 def on_FCU_Mod(agent, *larg) :
     global Fcu_Mode
@@ -162,7 +138,7 @@ def Capture_ROUTE(khi_c):
     elif cap > 360* (math.pi/180) :
         cap-=360* (math.pi/180) 
     Capture_CAP(cap)
-    
+        
 def Capture_CAP (target):
 
     global Vp
@@ -210,7 +186,7 @@ def Capture_CAP (target):
     if (p<=(-Max_Roll_Rate)):
         p = -Max_Roll_Rate
     
-    IvySendMsg("APLatControl rollRate={}".format(str(p)))
+    IvySendMsg("PA_p={}".format(str(p)))
 bus_address = "127.255.255:2010"
 app_name = "PA_LAT"
 ivy_bus = bus_address
